@@ -39,10 +39,18 @@ export interface BrowserEngine {
 }
 
 export interface ProfileManager {
-  createProfile(name: string, icon: string): Promise<Profile>
+  createProfile(name: string, icon: string, settings?: Partial<ProfileSettings>): Promise<Profile>
   deleteProfile(profileId: string): Promise<void>
   switchProfile(profileId: string): Promise<void>
   getActiveProfile(): Profile
   getAllProfiles(): Profile[]
+  getProfile(profileId: string): Profile | undefined
+  updateProfile(profileId: string, updates: Partial<Pick<Profile, 'name' | 'icon' | 'settings'>>): Promise<void>
   isolateProfileData(profileId: string): Promise<void>
+  createProfileBackup(profile: Profile): Promise<string>
+  restoreProfileFromBackup(backupPath: string): Promise<Profile>
+  getProfileBackups(profileId: string): Promise<string[]>
+  initialize(): Promise<void>
+  isReady(): boolean
+  close(): Promise<void>
 }
