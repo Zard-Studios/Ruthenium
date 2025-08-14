@@ -53,4 +53,14 @@
     .app p {
         @apply text-xl text-gray-600 dark:text-gray-400;
     }
+
+    /* Hide scrollbar utility */
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
 }
