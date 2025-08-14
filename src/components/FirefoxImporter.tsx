@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FirefoxProfileDetector, FirefoxInstallation, FirefoxProfile } from '../services/FirefoxProfileDetector';
+import { FirefoxDataImporter, ImportProgress, ImportResult } from '../services/FirefoxDataImporter';
 import { Button } from './ui/Button';
 import { Modal } from './ui/Modal';
 import { Card } from './ui/Card';
@@ -7,7 +8,7 @@ import { Card } from './ui/Card';
 interface FirefoxImporterProps {
     isOpen: boolean;
     onClose: () => void;
-    onImport: (profiles: FirefoxProfile[]) => Promise<void>;
+    onImport: (profiles: FirefoxProfile[], importResults: ImportResult[]) => Promise<void>;
 }
 
 interface ProfileWithMetadata extends FirefoxProfile {
@@ -30,8 +31,12 @@ export const FirefoxImporter: React.FC<FirefoxImporterProps> = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [profilesWithMetadata, setProfilesWithMetadata] = useState<ProfileWithMetadata[]>([]);
+    const [importing, setImporting] = useState(false);
+    const [importProgress, setImportProgress] = useState<ImportProgress | null>(null);
+    const [importResults, setImportResults] = useState<ImportResult[]>([]);
 
     const detector = new FirefoxProfileDetector();
+    const dataImporter = new FirefoxDataImporter((progress) => setImportProgress(progress));
 
     useEffect(() => {
         if (isOpen) {
@@ -90,13 +95,48 @@ export const FirefoxImporter: React.FC<FirefoxImporterProps> = ({
         }
 
         try {
-            setLoading(true);
-            await onImport(profilesToImport);
+            setImporting(true);
+            setImportProgress(null);
+            setError(null);
+
+            const results: ImportResult[] = [];
+
+            for (let i = 0; i < profilesToImport.length; i++) {
+                const profile = profilesToImport[i];
+
+                // Update overall progress
+                const overallProgress = Math.floor((i / profilesToImport.length) * 100);
+                setImportProgress({
+                    stage: 'bookmarks',
+                    progress: overallProgress,
+                    message: `Importing profile ${i + 1} of ${profilesToImport.length}: ${profile.name}`,
+                });
+
+                try {
+                    // Validate profile before importing
+                    const validation = await dataImporter.validateProfile(profile.path);
+                    if (!validation.isValid) {
+                        throw new Error(`Profile validation failed: ${validation.errors.join(', ')}`);
+                    }
+
+                    // Import profile data
+                    const result = await dataImporter.importProfile(profile);
+                    results.push(result);
+                } catch (profileError) {
+                    console.error(`Failed to import profile ${profile.name}:`, profileError);
+                    setError(`Failed to import profile "${profile.name}": ${profileError instanceof Error ? profileError.message : 'Unknown error'}`);
+                    return;
+                }
+            }
+
+            setImportResults(results);
+            await onImport(profilesToImport, results);
             onClose();
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to import profiles');
         } finally {
-            setLoading(false);
+            setImporting(false);
+            setImportProgress(null);
         }
     };
 
@@ -124,6 +164,29 @@ export const FirefoxImporter: React.FC<FirefoxImporterProps> = ({
                     <div className="loading-state">
                         <div className="spinner" />
                         <p>Scanning for Firefox profiles...</p>
+                    </div>
+                )}
+
+                {importing && (
+                    <div className="import-progress">
+                        <div className="progress-header">
+                            <h3>Importing Firefox Data</h3>
+                            {importProgress && (
+                                <div className="progress-details">
+                                    <p className="progress-message">{importProgress.message}</p>
+                                    <div className="progress-bar">
+                                        <div
+                                            className="progress-fill"
+                                            style={{ width: `${importProgress.progress}%` }}
+                                        />
+                                    </div>
+                                    <div className="progress-stats">
+                                        <span className="progress-stage">Stage: {importProgress.stage}</span>
+                                        <span className="progress-percent">{importProgress.progress}%</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
 
@@ -218,9 +281,9 @@ export const FirefoxImporter: React.FC<FirefoxImporterProps> = ({
                     </Button>
                     <Button
                         onClick={handleImport}
-                        disabled={selectedProfiles.size === 0 || loading}
+                        disabled={selectedProfiles.size === 0 || loading || importing}
                     >
-                        Import Selected ({selectedProfiles.size})
+                        {importing ? 'Importing...' : `Import Selected (${selectedProfiles.size})`}
                     </Button>
                 </div>
             </div>
@@ -352,6 +415,53 @@ export const FirefoxImporter: React.FC<FirefoxImporterProps> = ({
           padding: 0.25rem 0.5rem;
           border-radius: 4px;
           font-size: 0.75rem;
+        }
+
+        .import-progress {
+          padding: 2rem;
+          text-align: center;
+        }
+
+        .progress-header h3 {
+          margin: 0 0 1rem 0;
+          color: #0078d4;
+        }
+
+        .progress-message {
+          margin-bottom: 1rem;
+          color: #666;
+          font-size: 0.875rem;
+        }
+
+        .progress-bar {
+          width: 100%;
+          height: 8px;
+          background-color: #f0f0f0;
+          border-radius: 4px;
+          overflow: hidden;
+          margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #0078d4, #106ebe);
+          transition: width 0.3s ease;
+          border-radius: 4px;
+        }
+
+        .progress-stats {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.75rem;
+          color: #666;
+        }
+
+        .progress-stage {
+          text-transform: capitalize;
+        }
+
+        .progress-percent {
+          font-weight: 600;
         }
 
         .modal-actions {

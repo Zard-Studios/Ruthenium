@@ -3,11 +3,16 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { FirefoxImporter } from '../FirefoxImporter';
 import { FirefoxProfileDetector } from '../../services/FirefoxProfileDetector';
+import { FirefoxDataImporter } from '../../services/FirefoxDataImporter';
 
 // Mock the FirefoxProfileDetector
 vi.mock('../../services/FirefoxProfileDetector');
 
+// Mock the FirefoxDataImporter
+vi.mock('../../services/FirefoxDataImporter');
+
 const mockDetector = FirefoxProfileDetector as any;
+const mockDataImporter = FirefoxDataImporter as any;
 
 describe('FirefoxImporter', () => {
     const mockOnClose = vi.fn();
@@ -50,6 +55,23 @@ describe('FirefoxImporter', () => {
         // Setup default mocks
         mockDetector.prototype.detectFirefoxInstallations = vi.fn().mockResolvedValue(mockInstallations);
         mockDetector.prototype.getProfileMetadata = vi.fn().mockResolvedValue(mockMetadata);
+
+        // Setup data importer mocks
+        mockDataImporter.prototype.validateProfile = vi.fn().mockResolvedValue({
+            isValid: true,
+            hasBookmarks: true,
+            hasHistory: true,
+            hasPasswords: false,
+            hasSettings: true,
+            errors: [],
+        });
+        mockDataImporter.prototype.importProfile = vi.fn().mockResolvedValue({
+            bookmarks: [],
+            history: [],
+            passwords: [],
+            settings: {},
+            stats: { bookmarksCount: 0, historyCount: 0, passwordsCount: 0 },
+        });
 
         mockOnClose.mockClear();
         mockOnImport.mockClear();
@@ -173,7 +195,7 @@ describe('FirefoxImporter', () => {
                     name: 'default',
                     path: '/home/user/.mozilla/firefox/abc123.default',
                 }),
-            ]);
+            ], expect.any(Array));
         });
 
         expect(mockOnClose).toHaveBeenCalled();
