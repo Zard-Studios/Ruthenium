@@ -5,6 +5,7 @@ export { BrowserEngine } from './BrowserEngine'
 export { ProfileManager } from './ProfileManager'
 export { ExtensionManager } from './ExtensionManager'
 export { WebExtensionBridge, ExtensionContext } from './WebExtensionBridge'
+export { FirefoxProfileDetector } from './FirefoxProfileDetector'
 
 export type {
   DatabaseProfile,
