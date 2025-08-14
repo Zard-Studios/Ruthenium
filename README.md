@@ -24,7 +24,7 @@ Un browser basato su Firefox con gestione avanzata multi-profilo per il cambio a
 
 ```bash
 # Clona il repository
-git clone <repository-url>
+git clone https://github.com/Zard-Studios/Ruthenium
 cd ruthenium-browser
 
 # Installa le dipendenze
