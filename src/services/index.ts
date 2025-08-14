@@ -3,6 +3,8 @@ export { DatabaseMigrationService } from './DatabaseMigrations'
 export { DatabaseSeeder } from './DatabaseSeeder'
 export { BrowserEngine } from './BrowserEngine'
 export { ProfileManager } from './ProfileManager'
+export { ExtensionManager } from './ExtensionManager'
+export { WebExtensionBridge, ExtensionContext } from './WebExtensionBridge'
 
 export type {
   DatabaseProfile,

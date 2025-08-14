@@ -54,6 +54,79 @@ export class DatabaseMigrationService {
           await (db as any).runQuery('DROP INDEX IF EXISTS idx_metrics_profile_id')
           await (db as any).runQuery('DROP INDEX IF EXISTS idx_metrics_timestamp')
         }
+      },
+      {
+        version: 3,
+        description: 'Add extension support tables',
+        up: async (db: DatabaseService) => {
+          // Extensions table
+          await (db as any).runQuery(`
+            CREATE TABLE IF NOT EXISTS extensions (
+              id TEXT PRIMARY KEY,
+              name TEXT NOT NULL,
+              version TEXT NOT NULL,
+              description TEXT,
+              author TEXT,
+              manifest_version INTEGER NOT NULL,
+              permissions TEXT, -- JSON array
+              icons TEXT, -- JSON object
+              is_enabled INTEGER DEFAULT 1,
+              install_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+              update_date DATETIME,
+              profile_id TEXT, -- NULL for global extensions
+              manifest_data TEXT, -- Full manifest JSON
+              FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+            )
+          `)
+
+          // Profile extension states table
+          await (db as any).runQuery(`
+            CREATE TABLE IF NOT EXISTS profile_extension_states (
+              profile_id TEXT NOT NULL,
+              extension_id TEXT NOT NULL,
+              is_enabled INTEGER DEFAULT 1,
+              settings TEXT, -- JSON object for extension settings
+              permissions TEXT, -- JSON array of granted permissions
+              last_used DATETIME,
+              PRIMARY KEY (profile_id, extension_id),
+              FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE,
+              FOREIGN KEY (extension_id) REFERENCES extensions(id) ON DELETE CASCADE
+            )
+          `)
+
+          // Extension storage table (for WebExtension storage API)
+          await (db as any).runQuery(`
+            CREATE TABLE IF NOT EXISTS extension_storage (
+              profile_id TEXT NOT NULL,
+              extension_id TEXT NOT NULL,
+              storage_type TEXT NOT NULL, -- 'local' or 'sync'
+              key TEXT NOT NULL,
+              value TEXT, -- JSON value
+              created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+              updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+              PRIMARY KEY (profile_id, extension_id, storage_type, key),
+              FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE,
+              FOREIGN KEY (extension_id) REFERENCES extensions(id) ON DELETE CASCADE
+            )
+          `)
+
+          // Create indexes for extension tables
+          await (db as any).runQuery('CREATE INDEX IF NOT EXISTS idx_extensions_profile_id ON extensions(profile_id)')
+          await (db as any).runQuery('CREATE INDEX IF NOT EXISTS idx_extensions_name ON extensions(name)')
+          await (db as any).runQuery('CREATE INDEX IF NOT EXISTS idx_profile_extension_states_profile_id ON profile_extension_states(profile_id)')
+          await (db as any).runQuery('CREATE INDEX IF NOT EXISTS idx_profile_extension_states_extension_id ON profile_extension_states(extension_id)')
+          await (db as any).runQuery('CREATE INDEX IF NOT EXISTS idx_extension_storage_profile_extension ON extension_storage(profile_id, extension_id)')
+        },
+        down: async (db: DatabaseService) => {
+          await (db as any).runQuery('DROP INDEX IF EXISTS idx_extensions_profile_id')
+          await (db as any).runQuery('DROP INDEX IF EXISTS idx_extensions_name')
+          await (db as any).runQuery('DROP INDEX IF EXISTS idx_profile_extension_states_profile_id')
+          await (db as any).runQuery('DROP INDEX IF EXISTS idx_profile_extension_states_extension_id')
+          await (db as any).runQuery('DROP INDEX IF EXISTS idx_extension_storage_profile_extension')
+          await (db as any).runQuery('DROP TABLE IF EXISTS extension_storage')
+          await (db as any).runQuery('DROP TABLE IF EXISTS profile_extension_states')
+          await (db as any).runQuery('DROP TABLE IF EXISTS extensions')
+        }
       }
     ]
   }

@@ -54,3 +54,12 @@ export interface ProfileManager {
   isReady(): boolean
   close(): Promise<void>
 }
+
+// Extension types
+export type {
+  Extension,
+  ExtensionManifest,
+  ExtensionInstallOptions,
+  ExtensionState,
+  WebExtensionAPI
+} from './extension'
