@@ -8,7 +8,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./src/renderer/src/__tests__/setup.ts']
+    setupFiles: ['./src/renderer/src/__tests__/setup.ts'],
+    typecheck: {
+      tsconfig: './tsconfig.test.json'
+    }
   },
   resolve: {
     alias: {

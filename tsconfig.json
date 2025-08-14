@@ -39,11 +39,16 @@
         }
     },
     "include": [
-        "src/renderer/**/*"
+        "src/**/*",
+        "*.ts",
+        "*.tsx"
     ],
     "exclude": [
         "node_modules",
         "dist",
-        "src/main/**/*"
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/*.spec.tsx"
     ]
 }
