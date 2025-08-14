@@ -1,73 +1,73 @@
 # Ruthenium Browser
 
-A Firefox-based browser with advanced multi-profile management for seamless account switching and enhanced privacy.
+Un browser basato su Firefox con gestione avanzata multi-profilo per il cambio account senza interruzioni e privacy migliorata.
 
-## Features
+## Caratteristiche
 
-- 🔄 **Multi-Profile Management**: Create and manage isolated browser profiles
-- 🔒 **Complete Data Isolation**: Separate cookies, sessions, and browsing data per profile
-- 🦊 **Firefox Compatibility**: Built on Firefox ESR with full extension support
-- 🎨 **Modern UI**: Beautiful, intuitive interface with dark/light themes
-- 🚀 **High Performance**: Optimized for speed and memory efficiency
-- 🔐 **Privacy Focused**: Advanced anti-fingerprinting and user agent spoofing
-- 🌐 **Cross-Platform**: Native support for macOS, Windows, and Linux
+- 🔄 **Gestione Multi-Profilo**: Crea e gestisci profili browser isolati
+- 🔒 **Isolamento Completo dei Dati**: Cookie, sessioni e dati di navigazione separati per profilo
+- 🦊 **Compatibilità Firefox**: Basato su Firefox ESR con supporto completo alle estensioni
+- 🎨 **UI Moderna**: Interfaccia bella e intuitiva con temi scuri/chiari
+- 🚀 **Alte Prestazioni**: Ottimizzato per velocità ed efficienza della memoria
+- 🔐 **Focalizzato sulla Privacy**: Anti-fingerprinting avanzato e spoofing user agent
+- 🌐 **Cross-Platform**: Supporto nativo per macOS, Windows e Linux
 
-## Development Setup
+## Setup Sviluppo
 
-### Prerequisites
+### Prerequisiti
 
 - Node.js 18+ 
-- npm or yarn
+- npm o yarn
 - Git
 
-### Installation
+### Installazione
 
 ```bash
-# Clone the repository
+# Clona il repository
 git clone <repository-url>
 cd ruthenium-browser
 
-# Install dependencies
+# Installa le dipendenze
 npm install
 
-# Start development server
+# Avvia il server di sviluppo
 npm run dev
 ```
 
-### Available Scripts
+### Script Disponibili
 
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Build for production
-- `npm run test` - Run tests
-- `npm run test:watch` - Run tests in watch mode
-- `npm run lint` - Run ESLint
-- `npm run format` - Format code with Prettier
-- `npm run package` - Package for current platform
-- `npm run package:mac` - Package for macOS
-- `npm run package:win` - Package for Windows
-- `npm run package:linux` - Package for Linux
+- `npm run dev` - Avvia server di sviluppo con hot reload
+- `npm run build` - Build per produzione
+- `npm run test` - Esegui i test
+- `npm run test:watch` - Esegui i test in modalità watch
+- `npm run lint` - Esegui ESLint
+- `npm run format` - Formatta il codice con Prettier
+- `npm run package` - Pacchettizza per la piattaforma corrente
+- `npm run package:mac` - Pacchettizza per macOS
+- `npm run package:win` - Pacchettizza per Windows
+- `npm run package:linux` - Pacchettizza per Linux
 
-## Project Structure
+## Struttura Progetto
 
 ```
 src/
-├── main/           # Electron main process
-├── renderer/       # React frontend
-├── components/     # UI components
-├── services/       # Business logic services
-├── types/          # TypeScript type definitions
-└── utils/          # Utility functions
+├── main/           # Processo principale Electron
+├── renderer/       # Frontend React
+├── components/     # Componenti UI
+├── services/       # Servizi logica business
+├── types/          # Definizioni tipi TypeScript
+└── utils/          # Funzioni di utilità
 ```
 
-## Contributing
+## Contribuire
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Run tests and linting
-6. Submit a pull request
+1. Fai il fork del repository
+2. Crea un branch per la feature
+3. Fai le tue modifiche
+4. Aggiungi test per le nuove funzionalità
+5. Esegui test e linting
+6. Invia una pull request
 
-## License
+## Licenza
 
-MIT License - see LICENSE file for details
+Licenza MIT - vedi il file LICENSE per i dettagli
